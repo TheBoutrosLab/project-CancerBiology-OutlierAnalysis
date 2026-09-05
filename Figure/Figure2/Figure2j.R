@@ -331,8 +331,6 @@ text.pvalue.tumor.na <- display.statistical.result(
     );
 
 # Establish an arbitrary but consistent random seed for plotting consistency
-# The seed string is retained from when this panel was labelled 2k, so that the
-# published point jitter is reproduced exactly.
 set.seed(sum(utf8ToInt('Figure2k')));
 
 # Create boxplot
