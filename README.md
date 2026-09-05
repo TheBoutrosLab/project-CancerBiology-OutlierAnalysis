@@ -6,11 +6,11 @@ This repository contains the analysis and figure-generating scripts for our acad
 
 "Widespread and Functional Gene Expression Outliers in Cancer"
 
-This code is supplementary to the main analysis package, `package-OutSeekR` ([GitHub](https://github.com/uclahs-cds/package-OutSeekR)).
+This code is supplementary to the main analysis package, `package-OutSeekR` ([GitHub](https://github.com/TheBoutrosLab/package-OutSeekR)).
 
 ## Repository Contents
 
-* `Figure/`: R project workspace with individual plotting scripts and `renv.lock`
+* `Figure/`: R project workspace with the analysis scripts (`01.Analysis/`), the plotting scripts for each main figure (`Figure1/` to `Figure4/`), `Benchmarking/`, `File information.txt` (a description of every object in the input data file) and `renv.lock`
 * `outlierAnalysisSupport/`: Common R package used by plotting scripts
 
 ## Getting Started
@@ -23,7 +23,7 @@ This code is supplementary to the main analysis package, `package-OutSeekR` ([Gi
 
 Bootstrapping a new development environment requires the following steps:
 
-1. Clone this repository: `git clone https://github.com/uclahs-cds/project-CancerBiology-OutlierAnalysis.git`.
+1. Clone this repository: `git clone https://github.com/TheBoutrosLab/project-CancerBiology-OutlierAnalysis.git`.
 1. Navigate to the `Figure/` subdirectory.
 1. Set the environment variables `OUTLIER_DATA_DIR` and `OUTLIER_DATA_FILENAME` to reference the original outlier datafile. These can be set in an `.Renviron` file.
 2. Within R, call `renv::restore()` to install the snapshotted packages.
@@ -48,6 +48,10 @@ These individual plotting scripts must be run next:
 2. `Figure3ghi.R`
 
 Thereafter, the individual plotting scripts (`Figure/Figure*/Figure*.R`) have no further dependencies and may be run in any order. Each `Figure/Figure*/Figure*.R` script produces one or more figures in the `Figure/output/` directory, along with a `Figure/output/Figure*.txt` session information file.
+
+## Authors
+
+Jee Yun Han (<jhan@sbpdiscovery.org>)
 
 ## License
 
