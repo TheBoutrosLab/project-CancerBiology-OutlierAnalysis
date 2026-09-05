@@ -40,6 +40,8 @@ The analysis scripts must be run in order:
 4. `4.cell.line.analysis.R`
 5. `5.crispr.rnai.analysis.R`
 
+The XGBoost model of Figure 2k (Supplementary Note 3) is fitted separately by `6.xeg.model.cross.validation.R`, a stand-alone `Rscript` that takes its own input `.rda` and writes the fold-averaged summaries that `Figure2k.R` reads (see `File information.txt`, section "XEG prediction model").
+
 These individual plotting scripts must be run next:
 
 1. `Figure3abf.R`

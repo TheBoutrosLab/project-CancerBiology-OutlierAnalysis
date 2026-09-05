@@ -54,8 +54,11 @@ effect.05.box$score <- as.numeric(effect.05.box$score);
 effect.05.box$status <- as.numeric(effect.05.box$status);
 
 
-i <- 'FOXP4';
-# i <- 'TNFSF10';
+### CELL LINE PANELS ############################################################
+# The panels are built for one gene at a time, so that the supplementary figures
+# can draw the same tracks for their own genes. A few genes are recorded in the
+# protein table under an older symbol, which is given as protein.symbol.
+create.cell.line.panels <- function(i, protein.symbol = i) {
 
 # Prepare RNA abundance data
 i.fpkm <- fpkm.tumor.symbol.filter.ccle[i, ];
@@ -66,7 +69,7 @@ i.fpkm.data <- data.frame(
 i.fpkm.data.order <- i.fpkm.data[order(i.fpkm.data$gene, decreasing = TRUE), ];
 
 # Prepare protein abundance data
-i.protein <- protein.info.breast.num[protein.info.breast.num.symbol %in% i, match(i.fpkm.data.order$sample, colnames(protein.info.breast.num))];
+i.protein <- protein.info.breast.num[protein.info.breast.num.symbol %in% protein.symbol, match(i.fpkm.data.order$sample, colnames(protein.info.breast.num))];
 
 
 # Create RNA abundance barplot
@@ -158,6 +161,19 @@ cnv.plot <- BoutrosLab.plotting.general::create.heatmap(
     colourkey.cex = 1.3,
     print.colour.key = FALSE
     );
+
+# The gene effect scores cover only the genes with a strong dependency, so the
+# last three panels are built when the gene is among them
+if (!(i %in% rnai.05.box$gene)) {
+    return(list(
+        fpkm = bar.fpkm,
+        protein = bar.protein.na,
+        cnv = cnv.plot,
+        rnai = NULL,
+        cas = NULL,
+        multipanel = NULL
+        ));
+    }
 
 # Prepare RNAi data for barplot
 rnai.05.box.4.FOXP4 <- rnai.05.box[rnai.05.box$gene %in% i, ];
@@ -262,8 +278,21 @@ multi.gene.protein.bar <- create.multipanelplot(
     right.legend.padding = 0
     );
 
+return(list(
+    fpkm = bar.fpkm,
+    protein = bar.protein.na,
+    rnai = bar.rnai.na,
+    cas = bar.cas.na,
+    cnv = cnv.plot,
+    multipanel = multi.gene.protein.bar
+    ));
+    }
+
+### PLOT ########################################################################
+i <- 'FOXP4';
+
 save.outlier.figure(
-    multi.gene.protein.bar,
+    create.cell.line.panels(i)$multipanel,
     c('Figure4k', i, 'multi', 'bar'),
     width = 9,
     height = 12

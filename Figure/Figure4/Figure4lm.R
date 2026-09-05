@@ -371,9 +371,11 @@ save.outlier.figure(
     height = 6
     );
 
-i <- 'SYK';
-
-drug.target <- sanger.zscore.drug.breast.match.info.df[sanger.zscore.drug.breast.match.info.df$repurposing_target %in% i, ]$Drug.Name;
+### DRUG RESPONSE PANEL #########################################################
+# The panel is built for one gene at a time, so that the supplementary figures
+# can draw the inhibitors of their own gene. The drugs of a gene are listed more
+# than once in the annotation, and drug.index selects the unique ones.
+create.drug.boxplot <- function(i, drug.index, main.label = expression('Gene effect score of outlier genes')) {
 
 # Get patient status and drug target information
 patient.status <- ccle.sample.outlier.status.overlap.na.samger.match.dup.filter[i, ];
@@ -381,18 +383,13 @@ drug.target <- depmap.drug.info.match.sanger.dup[depmap.drug.info.match.sanger.d
 
 # Get IC50 z-score values for the selected gene
 ic50.value.i <- sanger.drug.match.dup.zscore[match(drug.target$Drug.Name, rownames(sanger.drug.match.dup.zscore)), colnames(patient.status), drop = FALSE];
-# remove duplicated row
-ic50.value.i <- ic50.value.i[c(1, 3, 4), ];
+ic50.value.i <- ic50.value.i[drug.index, ];
 
 # Create a data frame for plotting
 i.drug.box <- data.frame(
     score = unlist(data.frame(t(ic50.value.i))),
-    status = rep(unlist(patient.status), 3),
-    group = c(
-        rep('a', length(patient.status)),
-        rep('b', length(patient.status)),
-        rep('c', length(patient.status))
-        )
+    status = rep(unlist(patient.status), nrow(ic50.value.i)),
+    group = rep(letters[1:nrow(ic50.value.i)], each = length(patient.status))
     );
 
 # Define colors for the points based on the patient status
@@ -406,7 +403,7 @@ set.seed(sum(utf8ToInt('Figure4m')));
 i.drug.box.plot <- BoutrosLab.plotting.general::create.boxplot(
     formula = score ~ group,
     data = i.drug.box,
-    main = expression('Gene effect score of outlier genes'),
+    main = main.label,
     outlier = TRUE,
     add.stripplot = TRUE,
     # jitter.factor = 10,
@@ -435,8 +432,14 @@ i.drug.box.plot <- BoutrosLab.plotting.general::create.boxplot(
     alpha = 0.25
     );
 
+return(i.drug.box.plot);
+    }
+
+### PLOT ########################################################################
+i <- 'SYK';
+
 save.outlier.figure(
-    i.drug.box.plot,
+    create.drug.boxplot(i, c(1, 3, 4)),
     c('Figure4m', i, 'box', 'drug'),
     width = 5,
     height = 6

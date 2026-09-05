@@ -145,6 +145,56 @@ p.me <- wilcox.test(
     conf.int = TRUE
     );
 
+### TUMOUR-ADJACENT NORMAL TISSUE ###############################################
+# The METABRIC normal samples are keyed by probe, as chr.strand.symbol
+meta.normal.symbol <- sub('^chr\\d+[.+-]', '', rownames(meta.com.outlier.promoter.symbol.normal.match));
+meta.normal.symbol <- sub('^.*[+-]', '', meta.normal.symbol);
+meta.normal.symbol <- sub('\\.\\d+$', '', meta.normal.symbol);
+meta.normal.symbol <- sub('^\\.', '', meta.normal.symbol);
+
+# One beta value per gene, averaged over the probes of that gene
+meta.normal.gene <- unique(na.omit(meta.normal.symbol));
+meta.com.outlier.promoter.symbol.normal.match.meta.unique <- do.call(rbind, lapply(
+    meta.normal.gene,
+    function(symbol) {
+        target.beta <- meta.com.outlier.promoter.symbol.normal.match[meta.normal.symbol %in% symbol, ];
+        if (1 == nrow(target.beta)) {
+            return(as.numeric(target.beta));
+            }
+        return(apply(target.beta, 2, function(x) mean(na.omit(x))));
+        }
+    ));
+rownames(meta.com.outlier.promoter.symbol.normal.match.meta.unique) <- meta.normal.gene;
+colnames(meta.com.outlier.promoter.symbol.normal.match.meta.unique) <- colnames(meta.com.outlier.promoter.symbol.normal.match);
+
+# The two datasets are merged the same way as the tumour samples
+me.out.normal.symbol.two.500 <- unique(c(
+    rownames(brca.outlier.promoter.symbol.normal.match.merge.500),
+    rownames(meta.com.outlier.promoter.symbol.normal.match.meta.unique)
+    ));
+
+two.outlier.promoter.symbol.sample.normal.match.merge.filter.500 <- do.call(rbind, lapply(
+    me.out.normal.symbol.two.500,
+    function(symbol) {
+        target.brca <- rep(NA, ncol(brca.outlier.promoter.symbol.normal.match.merge.500));
+        if (symbol %in% rownames(brca.outlier.promoter.symbol.normal.match.merge.500)) {
+            target.brca <- as.numeric(brca.outlier.promoter.symbol.normal.match.merge.500[symbol, ]);
+            }
+
+        target.meta <- rep(NA, ncol(meta.com.outlier.promoter.symbol.normal.match.meta.unique));
+        if (symbol %in% rownames(meta.com.outlier.promoter.symbol.normal.match.meta.unique)) {
+            target.meta <- as.numeric(meta.com.outlier.promoter.symbol.normal.match.meta.unique[symbol, ]);
+            }
+
+        return(c(target.brca, target.meta));
+        }
+    ));
+rownames(two.outlier.promoter.symbol.sample.normal.match.merge.filter.500) <- me.out.normal.symbol.two.500;
+colnames(two.outlier.promoter.symbol.sample.normal.match.merge.filter.500) <- c(
+    colnames(brca.outlier.promoter.symbol.normal.match.merge.500),
+    colnames(meta.com.outlier.promoter.symbol.normal.match.meta.unique)
+    );
+
 # Cache the computed variables for future use
 cache.multiple.computed.variables(c(
     'p.me',
@@ -158,7 +208,10 @@ cache.multiple.computed.variables(c(
     'outlier.patient.tag.01.meta.me.match',
     'outlier.sample.me.two.500',
     'two.outlier.patient.status.merge.filter.500',
-    'two.outlier.promoter.symbol.sample.match.merge.filter.500'
+    'two.outlier.promoter.symbol.sample.match.merge.filter.500',
+    'me.out.normal.symbol.two.500',
+    'meta.com.outlier.promoter.symbol.normal.match.meta.unique',
+    'two.outlier.promoter.symbol.sample.normal.match.merge.filter.500'
     ));
 
 # Save the session profile

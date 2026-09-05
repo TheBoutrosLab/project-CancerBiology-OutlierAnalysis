@@ -115,6 +115,12 @@ key <- list(
     text = list(
         lab = gene.order.rnai[7],
         cex = 1
+    ),
+    # x = 0.9,
+    y = 0.93,
+    text = list(
+        lab = gene.order.rnai[8],
+        cex = 1
         ),
     # x = 0.9,
     y = 0.93

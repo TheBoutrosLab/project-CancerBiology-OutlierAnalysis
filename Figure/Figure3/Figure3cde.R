@@ -856,7 +856,7 @@ clustering.heat.all;
 
 save.outlier.figure(
     clustering.heat.all,
-    c('Figure3c', 'XEG_cluster', 'heatmap'),
+    c('Figure3e', 'XEG_cluster', 'heatmap'),
     width = 5,
     height = 5.2
     );

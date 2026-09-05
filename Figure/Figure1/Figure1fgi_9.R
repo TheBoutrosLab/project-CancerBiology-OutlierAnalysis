@@ -27,6 +27,7 @@ attach(get.outlier.data.path());
 ### 1. Chromosomal enrichment ###################################################
 
 # Declare the biomaRt connection once
+# Gene coordinates were taken from Ensembl release 116
 ensembl <- NULL;
 
 # Get chromosomal positions, caching results in an intermediate directory for
@@ -47,8 +48,7 @@ get.chromosomal.positions <- function(gene.list, filters) {
     if (is.null(ensembl)) {
         ensembl <<- biomaRt:::useEnsembl(
             biomart = 'ensembl',
-            dataset = 'hsapiens_gene_ensembl',
-            version = 113
+            dataset = 'hsapiens_gene_ensembl'
             );
         }
 
@@ -412,6 +412,19 @@ p.value.chr.cheng.odd.sub.df$p.value <- p.value.chr.cheng.fisher.sub;
 p.value.chr.kao.odd.sub.df$p.value <- p.value.chr.kao.fisher.sub;
 p.value.chr.hatzis.odd.sub.df$p.value <- p.value.chr.hatzis.fisher.sub;
 p.value.chr.sjostrom.odd.sub.df$p.value <- p.value.chr.sjostrom.fisher.sub;
+
+# Collect the per dataset results for the supplementary figures
+p.value.chr.odd.sub.df.all <- list(
+    brca = p.value.chr.brca.odd.sub.df,
+    meta = p.value.chr.meta.odd.sub.df,
+    ispy = p.value.chr.ispy.odd.sub.df,
+    matador = p.value.chr.matador.odd.sub.df,
+    icgc = p.value.chr.icgc.odd.sub.df,
+    cheng = p.value.chr.cheng.odd.sub.df,
+    kao = p.value.chr.kao.odd.sub.df,
+    hatzis = p.value.chr.hatzis.odd.sub.df,
+    sjostrom = p.value.chr.sjostrom.odd.sub.df
+    );
 
 
 #   - use natural log
@@ -1140,8 +1153,8 @@ first.number.icgc.non <- gsub('^.*:(\\d+)-.*$', '\\1', fpkm.data.icgc$loc[as.num
 second.number.icgc.non <- gsub('^.*-(\\d+)$', '\\1', fpkm.data.icgc$loc[as.numeric(rownames(outlier.gene.fdr.all.icgc))[-(as.numeric(rownames(outlier.gene.fdr.01$icgc)))]]);
 
 # Extract the start and end positions for ICGC outlier genes
-first.number.icgc.out <- gsub('^.*:(\\d+)-.*$', '\\1', fpkm.data.icgc$loc[as.numeric(rownames(outlier.gene.fdr.all.icgc))]);
-second.number.icgc.out <- gsub('^.*-(\\d+)$', '\\1', fpkm.data.icgc$loc[as.numeric(rownames(outlier.gene.fdr.all.icgc))]);
+first.number.icgc.out <- gsub('^.*:(\\d+)-.*$', '\\1', fpkm.data.icgc$loc[as.numeric(rownames(outlier.gene.fdr.01$icgc))]);
+second.number.icgc.out <- gsub('^.*-(\\d+)$', '\\1', fpkm.data.icgc$loc[as.numeric(rownames(outlier.gene.fdr.01$icgc))]);
 
 # Calculate the lengths of non-outlier and outlier genes
 outlier.length.icgc <- as.numeric(second.number.icgc.out) - as.numeric(first.number.icgc.out) + 1;
@@ -2132,7 +2145,6 @@ save.outlier.figure(
 
 
 
-
 outlier.gene.fdr.all.icgc.symbol <- outlier.gene.fdr.all.icgc;
 outlier.gene.fdr.all.icgc.symbol$Symbol <- fpkm.data.icgc$Name[as.numeric(rownames(outlier.gene.fdr.all.icgc.symbol))];
 
@@ -2339,5 +2351,15 @@ save.outlier.figure(
     width = 11,
     height = 4.5
     );
+
+# Save these variables for later scripts
+cache.multiple.computed.variables(c(
+    'gene.position.all',
+    'p.value.chr.odd.sub.df.all',
+    'escalc.gc.matrix.5',
+    'escalc.exon.matrix.5',
+    'escalc.length.matrix.5',
+    'escalc.rna.matrix.5'
+    ));
 
 save.session.profile(file.path('output', 'Figure1fgi_9.txt'));

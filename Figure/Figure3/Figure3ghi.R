@@ -107,7 +107,7 @@ os.group.basal <- os.group.combine[os.group.combine$pam50 %in% i, ];
 
 km.os.group.combine <- create.km.plot(
     survival.object = Surv(os.group.basal$os, os.group.basal$status),
-    main = as.expression(substitute(paste('Kaplan-Meier estimate (Combined datasets) - ', var), list(var = 'Basal'))),
+    main = as.expression(substitute(paste('Kaplan-Meier estimate (Combined datasets) - ', var), list(var = i))),
     show.risktable = TRUE,
     xaxis.fontface = 1,
     yaxis.fontface = 1,
@@ -137,7 +137,7 @@ km.os.group.combine;
 
 save.outlier.figure(
     km.os.group.combine,
-    c('Figure3e', i, 'km'),
+    c('Figure3i', i, 'km'),
     width = 7.5,
     height = 7
     );

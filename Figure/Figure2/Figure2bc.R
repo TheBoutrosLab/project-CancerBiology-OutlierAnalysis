@@ -285,7 +285,7 @@ multi.gene;
 
 save.outlier.figure(
     multi.gene,
-    c('Figure2a', 'CNA', 'multipanel'),
+    c('Figure2b', 'CNA', 'multipanel'),
     width = 10.4,
     height = 4.5
     );
@@ -581,4 +581,4 @@ save.outlier.figure(
     width = 10.4,
     height = 4.5
     );
-save.session.profile(file.path('output', 'Figure2ac.txt'));
+save.session.profile(file.path('output', 'Figure2bc.txt'));

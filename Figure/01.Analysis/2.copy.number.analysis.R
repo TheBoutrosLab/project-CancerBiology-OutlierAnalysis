@@ -379,6 +379,43 @@ brca.cnv.chr.new.gis.fpkm.order.match <- brca.cnv.chr.new.gis.fpkm.order[
     ];
 
 
+### XEGs ASSOCIATED WITH AMPLIFICATION ##########################################
+# Median copy number of each gene in the patients with and without an XEG event
+summarize.median.cnv <- function(outlier.cnv, non.outlier.cnv) {
+    comparison <- cbind(
+        non = as.numeric(unlist(lapply(non.outlier.cnv, function(x) median(na.omit(as.numeric(x)))))),
+        out = as.numeric(unlist(lapply(outlier.cnv, function(x) median(na.omit(as.numeric(x))))))
+        );
+    rownames(comparison) <- names(outlier.cnv);
+    comparison <- data.frame(na.omit(comparison));
+    comparison[, 2] <- round(comparison[, 2]);
+    return(na.omit(comparison));
+    }
+
+# A gene is called associated with amplification when it is amplified in the
+# patients carrying its XEG event but not in the remaining patients
+select.amplified.outlier <- function(comparison) {
+    return(comparison[comparison$non < 1 & comparison$out >= 1, ]);
+    }
+
+brca.median.cnv.new.gis.comparison.na <- summarize.median.cnv(
+    brca.outlier.sample.cnv.new.gis,
+    brca.non.outlier.sample.cnv.new.gis
+    );
+meta.median.cnv.new.gis.comparison.na <- summarize.median.cnv(
+    meta.outlier.sample.cnv.new.gis,
+    meta.non.outlier.sample.cnv.new.gis
+    );
+icgc.median.cnv.new.gis.comparison.na <- summarize.median.cnv(
+    icgc.outlier.sample.cnv.new.gis,
+    icgc.non.outlier.sample.cnv.new.gis
+    );
+
+brca.cnv.portion.outlier <- select.amplified.outlier(brca.median.cnv.new.gis.comparison.na);
+meta.cnv.portion.outlier <- select.amplified.outlier(meta.median.cnv.new.gis.comparison.na);
+icgc.cnv.portion.outlier <- select.amplified.outlier(icgc.median.cnv.new.gis.comparison.na);
+
+
 # Save these variables for later scripts
 cache.multiple.computed.variables(c(
     'all.weighted.mean',
@@ -396,7 +433,13 @@ cache.multiple.computed.variables(c(
     'metafor.cnv.upper.all',
     'metafor.cnv.p.all.fdr',
     'outlier.patient.tag.01.brca.cnv.match',
-    'outlier.patient.tag.01.meta.cnv.match'
+    'outlier.patient.tag.01.meta.cnv.match',
+    'brca.median.cnv.new.gis.comparison.na',
+    'meta.median.cnv.new.gis.comparison.na',
+    'icgc.median.cnv.new.gis.comparison.na',
+    'brca.cnv.portion.outlier',
+    'meta.cnv.portion.outlier',
+    'icgc.cnv.portion.outlier'
     ));
 
 save.session.profile(file.path('output', '2.copy.number.analysis.txt'));
