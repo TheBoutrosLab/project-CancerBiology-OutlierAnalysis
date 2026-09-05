@@ -1,0 +1,223 @@
+# '2026-08-05_Figure1_2_3_4_min_input.rda' information
+#
+# The file holds the 95 objects that the plotting scripts attach through
+# get.outlier.data.path(). Derived objects are not stored here: they are
+# produced by the scripts in 01.Analysis and reloaded with
+# load.multiple.computed.variables().
+#
+# Nine transcriptome datasets are used throughout, and objects that exist once
+# per dataset carry one of the following suffixes.
+#
+#     brca      TCGA-BRCA
+#     meta      METABRIC
+#     icgc      ICGC BRCA-EU
+#     ispy      I-SPY2
+#     matador   MATADOR
+#     cheng     Cheng et al.
+#     hatzis    Hatzis et al.
+#     kao       Kao et al.
+#     sjostrom  Sjostrom et al.
+
+
+### RNA ABUNDANCE ###############################################################
+
+# fpkm.tumor.symbol.filter.brca
+#     : gene x patient RNA abundance matrix of the TCGA-BRCA dataset
+# fpkm.tumor.symbol.filter.meta.symbol
+#     : gene x patient RNA abundance matrix of the METABRIC dataset
+# fpkm.tumor.symbol.filter.icgc
+#     : gene x patient RNA abundance matrix of the ICGC BRCA-EU dataset
+# fpkm.tumor.symbol.filter.symbol.icgc
+#     : gene x patient RNA abundance matrix of the ICGC BRCA-EU dataset, keyed by
+#       gene symbol rather than by the identifier used in fpkm.data.icgc
+# fpkm.data.icgc
+#     : gene x patient RNA abundance matrix of the ICGC BRCA-EU dataset with the
+#       additional gene annotation columns, including Name
+# fpkm.tumor.symbol.filter.ispy
+#     : gene x patient RNA abundance matrix of the I-SPY2 dataset
+# fpkm.tumor.symbol.filter.matador.symbol
+#     : gene x patient RNA abundance matrix of the MATADOR dataset
+# fpkm.tumor.symbol.filter.cheng
+#     : gene x patient RNA abundance matrix of the Cheng dataset
+# fpkm.tumor.symbol.filter.hatzis
+#     : gene x patient RNA abundance matrix of the Hatzis dataset
+# fpkm.tumor.symbol.filter.kao
+#     : gene x patient RNA abundance matrix of the Kao dataset
+# fpkm.tumor.symbol.filter.sjostrom
+#     : gene x patient RNA abundance matrix of the Sjostrom dataset
+# fpkm.tumor.symbol.filter.ccle
+#     : gene x cell line RNA abundance matrix of the 45 CCLE breast cancer lines
+# patient.part.brca, patient.part.meta, patient.part.icgc, patient.part.ispy,
+# patient.part.matador, patient.part.cheng, patient.part.hatzis,
+# patient.part.kao, patient.part.sjostrom
+#     : number of patients of each dataset
+
+
+### XEG DETECTION ###############################################################
+
+# outlier.patient.tag.01.brca, outlier.patient.tag.01.meta,
+# outlier.patient.tag.01.icgc, outlier.patient.tag.01.ispy,
+# outlier.patient.tag.01.matador, outlier.patient.tag.01.cheng,
+# outlier.patient.tag.01.hatzis, outlier.patient.tag.01.kao,
+# outlier.patient.tag.01.sjostrom
+#     : XEG status matrix of each dataset, gene x patient. A value of 1 indicates
+#       an XEG event and 0 indicates a non-XEG event. Rows are restricted to the
+#       genes called as XEGs in that dataset.
+# outlier.gene.fdr.all.brca, outlier.gene.fdr.all.meta,
+# outlier.gene.fdr.all.icgc, outlier.gene.fdr.all.ispy,
+# outlier.gene.fdr.all.matador, outlier.gene.fdr.all.cheng,
+# outlier.gene.fdr.all.hatzis, outlier.gene.fdr.all.kao,
+# outlier.gene.fdr.all.sjostrom
+#     : OutSeekR results for every tested gene in each dataset, giving the five
+#       component statistics, the rank product, the p-value and the FDR
+# ccle.outlier.rank.fdr.05
+#     : OutSeekR results for the genes called as XEGs in the CCLE cell lines
+# ccle.sample.outlier.status
+#     : XEG status matrix of the CCLE cell lines, gene x cell line
+# subtype.total.outlier.num
+#     : PAM50 subtype and total number of XEGs of each patient in TCGA-BRCA,
+#       METABRIC and ICGC BRCA-EU. Subtypes are coded 1 Basal, 2 Her2,
+#       3 Luminal A, 4 Luminal B, 5 Normal-like.
+
+
+### COPY NUMBER #################################################################
+
+# brca.cnv.chr.new.gis
+#     : GISTIC copy number calls of TCGA-BRCA, gene x patient, with the
+#       Hugo_Symbol and Entrez_Gene_Id annotation columns
+# meta.cnv.chr.new.gis
+#     : GISTIC copy number calls of METABRIC, in the same format
+# icgc.cnv.chr.new.gis.raw
+#     : GISTIC copy number calls of ICGC BRCA-EU, with the Gene.Symbol and
+#       Cytoband annotation columns
+# icgc.cnv.chr.new.gis.cutoff
+#     : per-sample low and high copy number thresholds used for ICGC BRCA-EU
+# brca.cnv.chr.new.gis.fpkm.order.match.chr
+# meta.cnv.chr.new.gis.fpkm.order.match.chr
+#     : gene coordinates, giving gene_id, gene_name, chromosome, start and end
+# brca.amplicon
+#     : AmpliconArchitect calls for TCGA-BRCA, giving the amplicon index, its
+#       classification and its genomic intervals
+
+
+### DNA METHYLATION #############################################################
+
+# brca.me.data
+#     : promoter DNA methylation beta values of TCGA-BRCA, probe x patient
+# meta.me.data
+#     : promoter DNA methylation beta values of METABRIC, probe x patient
+# brca.me.outlier.match
+#     : TCGA-BRCA promoter methylation restricted to XEGs
+# brca.outlier.promoter.symbol.sample.match.brca
+#     : TCGA-BRCA promoter methylation of XEGs, matched to the samples that also
+#       have RNA data
+# brca.outlier.promoter.symbol.normal.match.filter.brca
+# brca.outlier.promoter.symbol.normal.match.merge.500
+#     : TCGA-BRCA promoter methylation of the tumour-adjacent normal samples,
+#       within 500 bp of the transcription start site
+# meta.com.outlier.promoter.symbol.normal.match
+#     : METABRIC promoter methylation of the tumour-adjacent normal samples
+# sample.info.norm
+#     : METABRIC normal sample annotation, including the matched_tumor column
+#       that links each normal sample to its tumour
+# promoters.info
+#     : CpG site coordinates of the PXDNL and MKX promoters, used for the
+#       methylation maps
+
+
+### SOMATIC MUTATION ############################################################
+
+# mutation.driver.list.gene
+#     : the 299 cancer driver genes used throughout
+# brca.mutation.driver.list.gene.vector.data
+# meta.mutation.driver.list.gene.vector.data
+#     : driver gene x patient mutation status of TCGA-BRCA and METABRIC
+# icgc.mutation.driver.list.gene.vector.data.mis
+#     : driver gene x patient mutation status of ICGC BRCA-EU, restricted to the
+#       driver genes covered by that dataset
+# brca.mutation.silent, meta.mutation.silent, icgc.mutation.silent
+#     : the variant classifications treated as silent in each dataset and
+#       therefore excluded when a patient is called mutated
+
+
+### PROTEIN #####################################################################
+
+# brca.protein
+#     : TCGA-BRCA reverse phase protein array values, antibody x patient
+# protein.antibody
+#     : annotation of the RPPA antibodies, including the target gene names
+# brca.protein.cptac
+#     : CPTAC mass spectrometry protein abundance of TCGA-BRCA, protein x patient
+# brca.protein.cptac.zscore
+#     : the same CPTAC values expressed as z scores
+# ispy.protein.outlier
+#     : I-SPY2 protein abundance of the XEGs with protein data
+# protein.info.breast.num
+#     : protein abundance of the CCLE breast cancer cell lines
+# protein.info.pancancer
+#     : protein abundance of the pan-cancer CCLE cell lines, used for validation
+
+
+### CELL LINE FUNCTION ##########################################################
+
+# gene.dependency.breast
+#     : DepMap CRISPR-Cas9 gene dependency probability, cell line x gene
+# cas.effect.breast
+#     : DepMap CRISPR-Cas9 gene effect score, gene x cell line
+# rnai.effect.breast
+#     : DepMap RNAi gene effect score, gene x cell line
+# cnv.info.breast.t.num
+#     : copy number of the CCLE breast cancer cell lines, gene x cell line
+# sanger.drug
+#     : GDSC drug response measurements of the cell lines
+# sanger.drug.info
+#     : GDSC drug annotation, including the target and the target pathway
+# depmap.drug.info
+#     : DepMap PRISM drug annotation, including the mechanism of action
+
+
+### CLINICAL ####################################################################
+
+# brca.clinic.order
+#     : TCGA-BRCA clinical annotation, ordered to match the RNA matrix
+# meta.clinic.5.order.combine
+#     : METABRIC clinical annotation, ordered to match the RNA matrix
+# icgc.clinic.order
+#     : ICGC BRCA-EU clinical annotation
+# icgc.clinic.subtype
+#     : PAM50 subtype of the ICGC BRCA-EU patients
+# ispy.clinic
+#     : I-SPY2 clinical annotation
+# matador.clinic.order
+#     : MATADOR clinical annotation
+# patient.cheng, patient.hatzis, patient.kao, patient.sjostrom
+#     : clinical annotation of the Cheng, Hatzis, Kao and Sjostrom datasets
+
+
+### GENE ANNOTATION #############################################################
+
+# gene.gc
+#     : Ensembl gene and transcript identifiers with GC content
+
+
+### XEG PREDICTION MODEL ########################################################
+#
+# Summaries of the XGBoost model of Figure 2k and Supplementary Figure 12. The
+# model itself is not stored. Every value is measured on held-out patients.
+# They are produced by 01.Analysis/6.xeg.model.cross.validation.R.
+
+# xeg.model.summary
+#     : mean and standard deviation of the outer test AUROC across the 50
+#       cross-validation folds, with the mean number of features selected
+# xeg.model.feature.frequency
+#     : the proportion of the 50 folds in which each candidate feature was
+#       selected. Features reaching 0.5 form the final feature set.
+# xeg.model.univariate.auc
+#     : AUROC of a model built from each feature alone
+# xeg.model.feature.evaluation
+#     : gain, mean absolute SHAP value and AUROC drop on removal of each feature
+# xeg.model.block.ablation
+#     : AUROC drop when a whole feature category is removed
+#
+# The last three are averaged over the folds in which that feature was selected,
+# and each carries the number of contributing folds.

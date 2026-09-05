@@ -1,18 +1,21 @@
 ### HISTORY ######################################################################
-# This script processes NGF and LRP4 gene expression and DNA methylation data, and generates
-# a scatter plot to visualize the relationship between RNA abundance and DNA
-# methylation levels across different patients.
-# The codes are connected to Figure 2h.
+# This script analyzes the DNA methylation on the promoter region of the PXDNL
+# gene in outlier and non-outlier patients in TCGA-BRCA data.
 # Date: 2024-08-14
 
 ### DESCRIPTION ##################################################################
-# This script analyzes the relationship between gene expression (RNA abundance) and
-# DNA methylation for NGF and LRP4 genes.
+# This script focuses on analyzing DNA methylation patterns in the promoter region
+# of the PXDNL gene. It compares methylation levels between outlier and non-outlier
+# patients using TCGA-BRCA data. The script processes methylation data for tumor
+# and normal samples, orders the data based on gene expression levels, and creates
+# heatmaps to visualize methylation patterns across different patient groups and
+# sample types.
 
 ### PREAMBLE #####################################################################
 # Load necessary libraries
 library(BoutrosLab.plotting.general);
 library(BoutrosLab.utilities);
+library(metafor);
 
 # Source the helper library
 library(outlierAnalysisSupport);
@@ -21,107 +24,125 @@ library(outlierAnalysisSupport);
 attach(get.outlier.data.path());
 
 load.multiple.computed.variables(c(
-    'two.outlier.patient.status.merge.filter.500',
-    'two.outlier.promoter.symbol.sample.match.merge.filter.500'
+    'outlier.patient.tag.01.brca.me.match'
     ));
 
 ### DESCRIPTION #################################################################
-# The function `do.plot.2i` processes data for RNA abundance (FPKM) and DNA methylation
-# for two example genes (NGF, LRP4) and creates scatter plots for visualization.
+# Function to process DNA methylation and FPKM data for the PDXNL gene and generate heatmaps.
 
-# Helper function to process FPKM data
-process.fpkm.data <- function(fpkm.brca, fpkm.meta, gene) {
-    fpkm.brca.gene <- fpkm.brca[fpkm.brca$Symbol %in% gene, -ncol(fpkm.brca), drop = FALSE]
-    fpkm.meta.gene <- fpkm.meta[fpkm.meta$Symbol %in% gene, -ncol(fpkm.meta), drop = FALSE]
+# Helper function to process and order methylation data
+process.methylation.data <- function(gene, outlier.data, normal.data, fpkm.data, tag.data) {
+    # Methylation data for outliers
+    gene.me <- outlier.data[outlier.data$Symbol == gene, !('Symbol' == colnames(outlier.data))];
+    gene.me.normal <- normal.data[rownames(gene.me), !('Symbol' == colnames(normal.data))];
 
-    fpkm.combined <- c(scale(as.numeric(fpkm.brca.gene)), scale(as.numeric(fpkm.meta.gene)))
-    fpkm.df <- data.frame(t(fpkm.combined))
-    rownames(fpkm.df) <- gene
-    colnames(fpkm.df) <- c(colnames(fpkm.brca.gene), colnames(fpkm.meta.gene))
+    # Patient grouping
+    gene.patient <- tag.data[rownames(fpkm.data)[fpkm.data$Symbol == gene], ]
+    gene.me.patient <- gene.me[, gene.patient == 1, drop = FALSE]
+    gene.me.patient.non <- gene.me[, gene.patient == 0, drop = FALSE]
 
-    return(fpkm.df)
-    }
+    overlap_patient <- colnames(normal.data)[substr(colnames(normal.data), 1, 12) %in% substr(names(gene.patient)[gene.patient == 1], 1, 12)]
 
-# Function to create the scatter plot for given gene
-do.plot.2i <- function(gene) {
-    # Process methylation and patient data
-    gene.methyl <- two.outlier.promoter.symbol.sample.match.merge.filter.500[gene, , drop = FALSE]
-    gene.patient <- two.outlier.patient.status.merge.filter.500[gene, ]
+    gene.me.patient_normal <- gene.me.normal[, overlap_patient, drop = FALSE]
+    gene.me.patient.non_normal <- gene.me.normal[, !colnames(gene.me.normal) %in% overlap_patient, drop = FALSE]
 
-    # Process FPKM data for the gene
-    fpkm.gene <- process.fpkm.data(fpkm.tumor.symbol.filter.brca, fpkm.tumor.symbol.filter.meta.symbol, gene)
-    fpkm.gene.ordered <- fpkm.gene[, colnames(two.outlier.patient.status.merge.filter.500), drop = FALSE]
-    fpkm.gene.ordered <- fpkm.gene.ordered[, order(as.numeric(fpkm.gene.ordered[1, ]), decreasing = TRUE), drop = FALSE]
+    # Order the data by promoter position
+    gene.promoters <- promoters.info[[gene]];
+    gene.promoters.order <- rownames(gene.promoters[order(gene.promoters$pos), ]);
 
-    # Order methylation data
-    gene.methyl.ordered <- gene.methyl[, colnames(fpkm.gene.ordered)]
-
-    # Prepare scatter plot data
-    scatter.data <- data.frame(fpkm = as.numeric(fpkm.gene.ordered), me = as.numeric(gene.methyl.ordered))
-    rownames(scatter.data) <- colnames(gene.methyl.ordered)
-    gene.patient.ordered <- gene.patient[colnames(gene.methyl.ordered)]
-
-    # Define colors for plot points
-    dot.colors <- ifelse(gene.patient.ordered == 1, 'red2', 'black')
-
-    # Reverse order for scatter plot
-    scatter.data.rev <- scatter.data[rev(seq(nrow(scatter.data))), ]
-    dot.colors.rev <- rev(dot.colors)
-
-    # Create scatter plot
-    scatter.plot <- create.scatterplot(
-        formula = fpkm ~ me,
-        data = scatter.data.rev,
-        col = dot.colors.rev,
-        alpha = .6,
-        xlimits = c(-0.06, 1.07),
-        xaxis.fontface = 1,
-        yaxis.fontface = 1,
-        yaxis.tck = c(0.2, 0),
-        xaxis.tck = c(0.2, 0),
-        add.grid = TRUE,
-        grid.colour = 'grey80',
-        cex = 0.9,
-        main.cex = 1.6,
-        xaxis.cex = 1,
-        yaxis.cex = 1,
-        main = gene,
-        xlab.cex = 1.3,
-        ylab.cex = 1.3,
-        ylab.label = expression(paste('RNA abundance (z-score)')),
-        xlab.label = expression(paste('DNA methylation (', beta, ' value)')),
-        type = c('p', 'r', 'g'),
-        legend = list(
-            inside = list(
-                fun = draw.key,
-                args = list(
-                    key = get.corr.key(
-                        x = scatter.data$fpkm,
-                        y = scatter.data$me,
-                        label.items = c('spearman'),
-                        alpha.background = 0,
-                        key.cex = 1.1
-                        )
-                    ),
-                x = 0.75,
-                y = 0.95,
-                corner = c(0, 1)
-                )
-            )
-        )
-
-    # Save scatter plot
-    save.outlier.figure(
-        scatter.plot,
-        c('Figure2i', gene, 'scatter'),
-        width = 6,
-        height = 6
+    list(
+        gene.me.patient = gene.me.patient[gene.promoters.order, ],
+        gene.me.patient.non = gene.me.patient.non[gene.promoters.order, ],
+        gene.me.patient_normal = gene.me.patient_normal[gene.promoters.order, ],
+        gene.me.patient.non_normal = gene.me.patient.non_normal[gene.promoters.order, ]
         )
     }
 
-# Generate scatter plots for NGF and LRP4 genes
-do.plot.2i('NGF')
-do.plot.2i('LRP4')
+# Function to create a heatmap for a given methylation data set
+create_gene_heatmap <- function(methylation_data, clustering = 'none', cluster.dimension = NULL, show.color.key = FALSE) {
+    BoutrosLab.plotting.general:::create.heatmap(
+        x = methylation_data,
+        clustering.method = clustering,
+        cluster.dimensions = cluster.dimension,
+        plot.dendrograms = FALSE,
+        colour.scheme = c('#b2182b', 'white', '#2166ac'),
+        grid.row = FALSE,
+        grid.col = FALSE,
+        yaxis.tck = 0,
+        xaxis.tck = 0,
+        yaxis.cex = 0,
+        yaxis.rot = 0,
+        ylab.cex = 0,
+        at = seq(0, 1, 0.1),
+        colourkey.cex = 1.3,
+        print.colour.key = show.color.key
+        )
+    }
+
+# Process PXDNL data
+gene <- 'PXDNL'
+methylation_data <- process.methylation.data(
+    gene = gene,
+    outlier.data = brca.outlier.promoter.symbol.sample.match.brca,
+    normal.data = brca.outlier.promoter.symbol.normal.match.filter.brca,
+    fpkm.data = fpkm.tumor.symbol.filter.brca,
+    tag.data = outlier.patient.tag.01.brca.me.match
+    )
+
+# Create heatmaps for different patient groups
+heatmap.outlier <- create_gene_heatmap(methylation_data$gene.me.patient);
+heatmap.outlier.normal <- create_gene_heatmap(t(methylation_data$gene.me.patient_normal));
+
+heatmap.non.outlier <- create_gene_heatmap(
+    methylation_data$gene.me.patient.non,
+    clustering = 'ward.D2',
+    cluster.dimension = 'row',
+    show.color.key = TRUE
+    );
+heatmap.non.outlier.normal <- create_gene_heatmap(
+    methylation_data$gene.me.patient.non_normal,
+    clustering = 'ward.D2',
+    cluster.dimension = 'row',
+    show.color.key = TRUE
+    );
+
+# Combine heatmaps into a multiplot
+combined_heatmap <- BoutrosLab.plotting.general:::create.multiplot(
+    plot.objects = list(heatmap.non.outlier.normal, heatmap.non.outlier, heatmap.outlier.normal, heatmap.outlier),
+    x.relation = 'sliced',
+    y.relation = 'sliced',
+    main = gene,
+    xlab.label = expression('Beta value'),
+    ylab.label = c(expression('Outlier patient'), '', '', '', expression('Non-outlier patients'), '', '', '', ''),
+    yaxis.fontface = 1,
+    plot.layout = c(1, 4),
+    main.key.padding = 3,
+    panel.heights = c(0.08, 0.08, 1, 0.2),
+    ylab.padding = 1,
+    y.spacing = -0.7,
+    main.cex = 1.6,
+    xaxis.cex = 0,
+    xlab.padding = -10,
+    xlab.to.xaxis.padding = -1,
+    bottom.padding = 3,
+    right.padding = 3,
+    yaxis.cex = 1.2,
+    yaxis.tck = 0,
+    ylab.cex = 1.15,
+    xlab.cex = 1.3,
+    xaxis.rot = 90,
+    xaxis.tck = 0,
+    xlab.key.padding = 4,
+    resolution = 500
+    )
+
+# Save the heatmap plot
+save.outlier.figure(
+    combined_heatmap,
+    c('Figure2i', gene, 'heatmap', 'me'),
+    width = 7.5,
+    height = 8.5
+    )
 
 # Save session profile
 save.session.profile(file.path('output', 'Figure2i.txt'))
